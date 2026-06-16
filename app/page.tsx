@@ -68,7 +68,6 @@ export default function Home() {
               0%
             </p>
           </div>
-        </div>
       </section>
     </main>
   );
