@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/sidebar";
+import AddAccountModal from "@/components/accounts/add-account-modal";
 
 export default function AccountsPage() {
   return (
@@ -11,10 +12,11 @@ export default function AccountsPage() {
             Accounts
           </h1>
 
-          <button className="bg-white text-black px-4 py-2 rounded-lg">
-            Add Account
-          </button>
-        </div>
+	<button>
+  		Add Account
+	</button>
+        <AddAccountModal />
+	</div>
 
         <div className="mt-8 bg-zinc-900 rounded-xl p-6">
           No accounts yet
