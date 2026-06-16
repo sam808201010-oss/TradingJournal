@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model TradingAccount {
+  id                 String   @id @default(cuid())
+
+  accountName        String
+
+  brokerName         String?
+  propFirmName       String?
+
+  accountType        String
+  phase              String
+
+  startingBalance    Float
+  currentBalance     Float
+
+  maxDailyDrawdown   Float?
+  maxOverallDrawdown Float?
+
+  profitTarget       Float?
+
+  payoutCycle        String?
+
+  status             String
+
+  createdAt          DateTime @default(now())
+}
+
+model Trade {
+  id          String   @id @default(cuid())
+
+  symbol      String
+  direction   String
+
+  entryPrice  Float
+
+  stopLoss    Float?
+  takeProfit  Float?
+
+  lotSize     Float?
+
+  riskPercent Float?
+
+  result      String
+
+  notes       String?
+
+  createdAt   DateTime @default(now())
+}
+
+model Payout {
+  id            String   @id @default(cuid())
+
+  amount        Float
+
+  status        String
+
+  payoutDate    DateTime
+
+  paymentMethod String?
+
+  createdAt     DateTime @default(now())
+}

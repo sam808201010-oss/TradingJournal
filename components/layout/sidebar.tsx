@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import {
   LayoutDashboard,
   Building2,
@@ -10,14 +12,46 @@ import {
 } from "lucide-react";
 
 const items = [
-  { name: "Dashboard", icon: LayoutDashboard },
-  { name: "Accounts", icon: Building2 },
-  { name: "Trades", icon: CandlestickChart },
-  { name: "Analytics", icon: BarChart3 },
-  { name: "Payouts", icon: Wallet },
-  { name: "Notes", icon: NotebookPen },
-  { name: "AI Insights", icon: Brain },
-  { name: "Settings", icon: Settings },
+  {
+    name: "Dashboard",
+    href: "/",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Accounts",
+    href: "/accounts",
+    icon: Building2,
+  },
+  {
+    name: "Trades",
+    href: "/trades",
+    icon: CandlestickChart,
+  },
+  {
+    name: "Analytics",
+    href: "/analytics",
+    icon: BarChart3,
+  },
+  {
+    name: "Payouts",
+    href: "/payouts",
+    icon: Wallet,
+  },
+  {
+    name: "Notes",
+    href: "/notes",
+    icon: NotebookPen,
+  },
+  {
+    name: "AI Insights",
+    href: "/ai",
+    icon: Brain,
+  },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: Settings,
+  },
 ];
 
 export default function Sidebar() {
@@ -32,13 +66,14 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           return (
-            <div
-              key={item.name}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white cursor-pointer transition"
-            >
+            <Link
+		href={item.href}
+		key={item.name}
+		className="flex items-center gap-3 px-3 py-2 rounded-lg text-zinc-400 hover:bg-zinc-900 hover:text-white transition"
+		>
               <Icon size={18} />
               <span>{item.name}</span>
-            </div>
+            </Link>
           );
         })}
       </nav>
