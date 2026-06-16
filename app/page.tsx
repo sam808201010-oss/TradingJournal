@@ -15,59 +15,22 @@ export default function Home() {
           Welcome to TradeStructure
         </p>
 
-        
-<div className="grid grid-cols-4 gap-4 mt-8">
-  <StatCard
-    title="Total PnL"
-    value="$0.00"
-  />
+        <div className="grid grid-cols-4 gap-4 mt-8">
+          <StatCard title="Total PnL" value="$0.00" />
+          <StatCard title="Win Rate" value="0%" />
+          <StatCard title="Accounts" value="0" />
+          <StatCard title="Drawdown" value="0%" />
+        </div>
 
-  <StatCard
-    title="Win Rate"
-    value="0%"
-  />
-
-  <StatCard
-    title="Accounts"
-    value="0"
-  />
-
-  <StatCard
-    title="Drawdown"
-    value="0%"
-  />
-</div>
-
-<div className="grid grid-cols-2 gap-6 mt-8">
-  <div className="bg-zinc-900 rounded-xl p-6 h-80">
-    Equity Curve
-  </div>
-
-  <div className="bg-zinc-900 rounded-xl p-6 h-80">
-    Recent Trades
-  </div>
-</div>
-
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <h3>Win Rate</h3>
-            <p className="text-2xl font-bold mt-2">
-              0%
-            </p>
+        <div className="grid grid-cols-2 gap-6 mt-8">
+          <div className="bg-zinc-900 rounded-xl p-6 h-80">
+            Equity Curve
           </div>
 
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <h3>Accounts</h3>
-            <p className="text-2xl font-bold mt-2">
-              0
-            </p>
+          <div className="bg-zinc-900 rounded-xl p-6 h-80">
+            Recent Trades
           </div>
-
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <h3>Drawdown</h3>
-            <p className="text-2xl font-bold mt-2">
-              0%
-            </p>
-          </div>
+        </div>
       </section>
     </main>
   );
