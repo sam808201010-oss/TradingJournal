@@ -4,6 +4,11 @@ import { useState } from "react";
 
 export default function AddTradeModal() {
   const [open, setOpen] = useState(false);
+  
+  const [pnl, setPnl] = useState("");
+  const [rr, setRr] = useState("");
+  const [commission, setCommission] = useState("");
+  const [tradeDate, setTradeDate] = useState("");
 
   const [symbol, setSymbol] = useState("");
   const [direction, setDirection] = useState("Buy");
@@ -31,6 +36,10 @@ export default function AddTradeModal() {
         riskPercent,
         result,
         notes,
+	pnl,
+	rr,
+	commission,
+	tradeDate,
       }),
     });
 
@@ -109,6 +118,38 @@ export default function AddTradeModal() {
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
+		<input
+	        type="number"
+  placeholder="PnL"
+  value={pnl}
+  onChange={(e) => setPnl(e.target.value)}
+  className="w-full bg-zinc-800 rounded-lg p-3"
+/>
+
+<input
+  type="number"
+  step="0.1"
+  placeholder="RR"
+  value={rr}
+  onChange={(e) => setRr(e.target.value)}
+  className="w-full bg-zinc-800 rounded-lg p-3"
+/>
+
+<input
+  type="number"
+  step="0.01"
+  placeholder="Commission"
+  value={commission}
+  onChange={(e) => setCommission(e.target.value)}
+  className="w-full bg-zinc-800 rounded-lg p-3"
+/>
+
+<input
+  type="date"
+  value={tradeDate}
+  onChange={(e) => setTradeDate(e.target.value)}
+  className="w-full bg-zinc-800 rounded-lg p-3"
+/>		
               <input
                 value={result}
                 onChange={(e) => setResult(e.target.value)}

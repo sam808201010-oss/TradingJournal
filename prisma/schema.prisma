@@ -37,11 +37,12 @@ model TradingAccount {
 model Trade {
   id          String   @id @default(cuid())
 
+  accountId   String?
+
   symbol      String
   direction   String
 
   entryPrice  Float
-
   stopLoss    Float?
   takeProfit  Float?
 
@@ -49,9 +50,15 @@ model Trade {
 
   riskPercent Float?
 
-  profitLoss  Float?
+  pnl         Float?
+  rr          Float?
+
+  commission  Float?
 
   result      String
+
+  tradeDate   DateTime @default(now())
+  closeDate   DateTime?
 
   notes       String?
 
