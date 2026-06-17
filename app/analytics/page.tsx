@@ -1,5 +1,6 @@
 import Sidebar from "@/components/layout/sidebar";
 import { prisma } from "@/lib/prisma";
+import EquityCurve from "@/components/analytics/equity-curve";
 
 export default async function AnalyticsPage() {
   const trades = await prisma.trade.findMany();
@@ -73,16 +74,13 @@ export default async function AnalyticsPage() {
 
         </div>
 
-        <div className="bg-zinc-900 rounded-xl p-6 mt-8">
-          <h2 className="text-2xl font-bold mb-4">
-            Summary
-          </h2>
+<div className="bg-zinc-900 rounded-xl p-6 mt-8">
+  <h2 className="text-2xl font-bold mb-4">
+    Equity Curve
+  </h2>
 
-          <p>Wins: {wins}</p>
-          <p>Losses: {losses}</p>
-          <p>Total PnL: ${totalPnL.toFixed(2)}</p>
-        </div>
-
+  <EquityCurve trades={trades} />
+</div>
       </section>
     </main>
   );
