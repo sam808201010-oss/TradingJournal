@@ -49,6 +49,8 @@ model Trade {
 
   riskPercent Float?
 
+  profitLoss  Float?
+
   result      String
 
   notes       String?

@@ -1,7 +1,23 @@
 import Sidebar from "@/components/layout/sidebar";
 import StatCard from "@/components/cards/stat-card";
+import { prisma } from "@/lib/prisma";
 
-export default function Home() {
+export default async function Home() {
+  const accounts = await prisma.tradingAccount.findMany();
+  const trades = await prisma.trade.findMany();
+
+  const totalAccounts = accounts.length;
+  const totalTrades = trades.length;
+
+  const winningTrades = trades.filter(
+    (trade) => trade.result === "Win"
+  ).length;
+
+  const winRate =
+    totalTrades > 0
+      ? ((winningTrades / totalTrades) * 100).toFixed(1)
+      : "0";
+
   return (
     <main className="bg-black text-white min-h-screen flex">
       <Sidebar />
@@ -16,10 +32,25 @@ export default function Home() {
         </p>
 
         <div className="grid grid-cols-4 gap-4 mt-8">
-          <StatCard title="Total PnL" value="$0.00" />
-          <StatCard title="Win Rate" value="0%" />
-          <StatCard title="Accounts" value="0" />
-          <StatCard title="Drawdown" value="0%" />
+          <StatCard
+            title="Accounts"
+            value={String(totalAccounts)}
+          />
+
+          <StatCard
+            title="Trades"
+            value={String(totalTrades)}
+          />
+
+          <StatCard
+            title="Win Rate"
+            value={`${winRate}%`}
+          />
+
+          <StatCard
+            title="Drawdown"
+            value="0%"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-6 mt-8">
