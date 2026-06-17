@@ -4,50 +4,85 @@ import { prisma } from "@/lib/prisma";
 export default async function AnalyticsPage() {
   const trades = await prisma.trade.findMany();
 
+  const totalTrades = trades.length;
+
   const wins = trades.filter(
-    (t) => t.result === "Win"
+    (trade) => trade.result === "Win"
   ).length;
 
   const losses = trades.filter(
-    (t) => t.result === "Loss"
+    (trade) => trade.result === "Loss"
   ).length;
 
   const winRate =
+    totalTrades > 0
+      ? (wins / totalTrades) * 100
+      : 0;
+
+  const totalPnL = trades.reduce(
+    (sum, trade) => sum + (trade.pnl || 0),
+    0
+  );
+
+  const avgRR =
     trades.length > 0
-      ? ((wins / trades.length) * 100).toFixed(1)
-      : "0";
+      ? trades.reduce(
+          (sum, trade) => sum + (trade.rr || 0),
+          0
+        ) / trades.length
+      : 0;
 
   return (
     <main className="bg-black text-white min-h-screen flex">
       <Sidebar />
 
       <section className="flex-1 p-8">
-        <h1 className="text-4xl font-bold mb-8">
+        <h1 className="text-4xl font-bold">
           Analytics
         </h1>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-4 gap-4 mt-8">
+
           <div className="bg-zinc-900 p-6 rounded-xl">
-            <h3>Total Trades</h3>
-            <p className="text-3xl font-bold">
-              {trades.length}
-            </p>
+            <p>Total Trades</p>
+            <h2 className="text-3xl font-bold">
+              {totalTrades}
+            </h2>
           </div>
 
           <div className="bg-zinc-900 p-6 rounded-xl">
-            <h3>Wins</h3>
-            <p className="text-3xl font-bold">
-              {wins}
-            </p>
+            <p>Win Rate</p>
+            <h2 className="text-3xl font-bold">
+              {winRate.toFixed(1)}%
+            </h2>
           </div>
 
           <div className="bg-zinc-900 p-6 rounded-xl">
-            <h3>Win Rate</h3>
-            <p className="text-3xl font-bold">
-              {winRate}%
-            </p>
+            <p>Total PnL</p>
+            <h2 className="text-3xl font-bold">
+              ${totalPnL.toFixed(2)}
+            </h2>
           </div>
+
+          <div className="bg-zinc-900 p-6 rounded-xl">
+            <p>Average RR</p>
+            <h2 className="text-3xl font-bold">
+              {avgRR.toFixed(2)}
+            </h2>
+          </div>
+
         </div>
+
+        <div className="bg-zinc-900 rounded-xl p-6 mt-8">
+          <h2 className="text-2xl font-bold mb-4">
+            Summary
+          </h2>
+
+          <p>Wins: {wins}</p>
+          <p>Losses: {losses}</p>
+          <p>Total PnL: ${totalPnL.toFixed(2)}</p>
+        </div>
+
       </section>
     </main>
   );
