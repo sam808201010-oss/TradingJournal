@@ -9,72 +9,76 @@ datasource db {
 }
 
 model TradingAccount {
-  id                 String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  accountName        String
+  accountName String
+  brokerName  String?
 
-  brokerName         String?
-  propFirmName       String?
+  propFirmName String?
 
-  accountType        String
-  phase              String
+  accountType String
+  phase       String
 
-  startingBalance    Float
-  currentBalance     Float
+  startingBalance Float
+  currentBalance  Float
 
   maxDailyDrawdown   Float?
   maxOverallDrawdown Float?
 
-  profitTarget       Float?
+  profitTarget Float?
 
-  payoutCycle        String?
+  payoutCycle String?
 
-  status             String
+  status String @default("Active")
 
-  createdAt          DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  trades Trade[]
 }
 
 model Trade {
-  id          String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  accountId   String?
+  accountId String?
 
-  symbol      String
-  direction   String
+  symbol    String
+  direction String
 
-  entryPrice  Float
-  stopLoss    Float?
-  takeProfit  Float?
+  entryPrice Float
+  stopLoss   Float?
+  takeProfit Float?
 
-  lotSize     Float?
+  lotSize Float?
 
   riskPercent Float?
 
-  pnl         Float?
-  rr          Float?
+  pnl Float?
+  rr  Float?
 
-  commission  Float?
+  commission Float?
 
-  result      String
+  result String
 
-  tradeDate   DateTime @default(now())
-  closeDate   DateTime?
+  tradeDate DateTime  @default(now())
+  closeDate DateTime?
 
-  notes       String?
+  account TradingAccount? @relation(fields: [accountId], references: [id])
 
-  createdAt   DateTime @default(now())
+  notes String?
+
+  createdAt DateTime @default(now())
 }
 
 model Payout {
-  id            String   @id @default(cuid())
+  id String @id @default(cuid())
 
-  amount        Float
+  amount Float
 
-  status        String
+  status String
 
-  payoutDate    DateTime
+  payoutDate DateTime
 
   paymentMethod String?
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 }

@@ -18,6 +18,7 @@ export async function POST(request: Request) {
 
   const trade = await prisma.trade.create({
     data: {
+	accountId: body.accountId || null,
 	pnl: body.pnl ? Number(body.pnl) : null,
 	rr: body.rr ? Number(body.rr) : null,
 	commission: body.commission

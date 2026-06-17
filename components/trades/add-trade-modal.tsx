@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AddTradeModal() {
   const [open, setOpen] = useState(false);
-  
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [accountId, setAccountId] = useState("");  
   const [pnl, setPnl] = useState("");
   const [rr, setRr] = useState("");
   const [commission, setCommission] = useState("");
@@ -20,6 +21,21 @@ export default function AddTradeModal() {
   const [result, setResult] = useState("");
   const [notes, setNotes] = useState("");
 
+useEffect(() => {
+  async function loadAccounts() {
+    const response = await fetch("/api/accounts");
+    const data = await response.json();
+
+    setAccounts(data);
+
+    if (data.length > 0) {
+      setAccountId(data[0].id);
+    }
+  }
+
+  loadAccounts();
+}, []);
+
   async function handleSave() {
     const response = await fetch("/api/trades", {
       method: "POST",
@@ -27,7 +43,8 @@ export default function AddTradeModal() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        symbol,
+        accountId,
+	symbol,
         direction,
         entryPrice,
         stopLoss,
@@ -66,7 +83,20 @@ export default function AddTradeModal() {
             </h2>
 
             <div className="space-y-3">
-
+		<select
+  value={accountId}
+  onChange={(e) => setAccountId(e.target.value)}
+  className="w-full p-3 bg-zinc-800 rounded"
+>
+  {accounts.map((account) => (
+    <option
+      key={account.id}
+      value={account.id}
+    >
+      {account.accountName}
+    </option>
+  ))}
+</select>
               <input
                 value={symbol}
                 onChange={(e) => setSymbol(e.target.value)}
