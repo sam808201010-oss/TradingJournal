@@ -1,6 +1,7 @@
 import Sidebar from "@/components/layout/sidebar";
 import AddAccountModal from "@/components/accounts/add-account-modal";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export default async function AccountsPage() {
   const accounts = await prisma.tradingAccount.findMany({
@@ -28,33 +29,37 @@ export default async function AccountsPage() {
               No accounts yet
             </div>
           ) : (
-            accounts.map((account) => (
-              <div
-                key={account.id}
-                className="bg-zinc-900 rounded-xl p-6"
-              >
-                <h3 className="text-xl font-bold">
-                  {account.accountName}
-                </h3>
+accounts.map((account) => (
+  <Link
+    href={`/accounts/${account.id}`}
+    key={account.id}
+  >
+    <div className="bg-zinc-900 rounded-xl p-6 hover:bg-zinc-800 transition">
 
-                <p className="text-zinc-400 mt-2">
-                  Broker: {account.brokerName}
-                </p>
+      <h3 className="text-xl font-bold">
+        {account.accountName}
+      </h3>
 
-                <p className="mt-2">
-                  Balance: $
-                  {account.currentBalance.toLocaleString()}
-                </p>
+      <p className="text-zinc-400 mt-2">
+        Broker: {account.brokerName}
+      </p>
 
-                <p className="mt-2">
-                  Status: {account.status}
-                </p>
+      <p className="mt-2">
+        Balance: $
+        {account.currentBalance.toLocaleString()}
+      </p>
 
-                <p className="mt-2">
-                  Phase: {account.phase}
-                </p>
-              </div>
-            ))
+      <p className="mt-2">
+        Status: {account.status}
+      </p>
+
+      <p className="mt-2">
+        Phase: {account.phase}
+      </p>
+
+    </div>
+  </Link>
+))
           )}
         </div>
       </section>
