@@ -5,6 +5,41 @@ import { useState } from "react";
 export default function AddTradeModal() {
   const [open, setOpen] = useState(false);
 
+  const [symbol, setSymbol] = useState("");
+  const [direction, setDirection] = useState("Buy");
+  const [entryPrice, setEntryPrice] = useState("");
+  const [stopLoss, setStopLoss] = useState("");
+  const [takeProfit, setTakeProfit] = useState("");
+  const [lotSize, setLotSize] = useState("");
+  const [riskPercent, setRiskPercent] = useState("");
+  const [result, setResult] = useState("");
+  const [notes, setNotes] = useState("");
+
+  async function handleSave() {
+    const response = await fetch("/api/trades", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        symbol,
+        direction,
+        entryPrice,
+        stopLoss,
+        takeProfit,
+        lotSize,
+        riskPercent,
+        result,
+        notes,
+      }),
+    });
+
+    if (response.ok) {
+      setOpen(false);
+      window.location.reload();
+    }
+  }
+
   return (
     <>
       <button
@@ -22,47 +57,68 @@ export default function AddTradeModal() {
             </h2>
 
             <div className="space-y-3">
+
               <input
+                value={symbol}
+                onChange={(e) => setSymbol(e.target.value)}
                 placeholder="Symbol"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
-              <select className="w-full p-3 bg-zinc-800 rounded">
+              <select
+                value={direction}
+                onChange={(e) => setDirection(e.target.value)}
+                className="w-full p-3 bg-zinc-800 rounded"
+              >
                 <option>Buy</option>
                 <option>Sell</option>
               </select>
 
               <input
+                value={entryPrice}
+                onChange={(e) => setEntryPrice(e.target.value)}
                 placeholder="Entry Price"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
               <input
+                value={stopLoss}
+                onChange={(e) => setStopLoss(e.target.value)}
                 placeholder="Stop Loss"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
               <input
+                value={takeProfit}
+                onChange={(e) => setTakeProfit(e.target.value)}
                 placeholder="Take Profit"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
               <input
+                value={lotSize}
+                onChange={(e) => setLotSize(e.target.value)}
                 placeholder="Lot Size"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
               <input
+                value={riskPercent}
+                onChange={(e) => setRiskPercent(e.target.value)}
                 placeholder="Risk %"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
               <input
-                placeholder="Result"
+                value={result}
+                onChange={(e) => setResult(e.target.value)}
+                placeholder="Result (Win / Loss)"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
 
               <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 placeholder="Notes"
                 className="w-full p-3 bg-zinc-800 rounded"
               />
@@ -76,7 +132,10 @@ export default function AddTradeModal() {
                 Cancel
               </button>
 
-              <button className="bg-white text-black px-4 py-2 rounded">
+              <button
+                onClick={handleSave}
+                className="bg-white text-black px-4 py-2 rounded"
+              >
                 Save
               </button>
             </div>
