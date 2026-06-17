@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/sidebar";
+import AddTradeModal from "@/components/trades/add-trade-modal";
 
 export default function TradesPage() {
   return (
@@ -11,10 +12,8 @@ export default function TradesPage() {
             Trades
           </h1>
 
-          <button className="bg-white text-black px-4 py-2 rounded-lg">
-            Add Trade
-          </button>
-        </div>
+        <AddTradeModal />
+	</div>
 
         <div className="mt-8 bg-zinc-900 rounded-xl p-6">
           No trades yet
