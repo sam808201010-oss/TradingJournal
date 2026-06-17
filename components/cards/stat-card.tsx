@@ -16,7 +16,7 @@ export default function StatCard({
           {title}
         </p>
 
-        <h3 className="text-3xl font-bold mt-3">
+	  <h3 className="text-3xl font-bold mt-3 text-white">
           {value}
         </h3>
       </CardContent>
