@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import Sidebar from "@/components/layout/sidebar";
 import { prisma } from "@/lib/prisma";
 import AddPayoutModal from "@/components/payouts/add-payout-modal";
