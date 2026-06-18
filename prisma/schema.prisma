@@ -34,6 +34,8 @@ model TradingAccount {
   createdAt DateTime @default(now())
 
   trades Trade[]
+
+  payouts Payout[]
 }
 
 model Trade {
@@ -70,15 +72,19 @@ model Trade {
 }
 
 model Payout {
-  id String @id @default(cuid())
+  id          String   @id @default(cuid())
 
-  amount Float
+  accountId   String
+  account     TradingAccount @relation(fields: [accountId], references: [id])
 
-  status String
+  amount      Float
 
-  payoutDate DateTime
+  requestDate DateTime @default(now())
+  paidDate    DateTime?
 
-  paymentMethod String?
+  status      String   @default("Requested")
 
-  createdAt DateTime @default(now())
+  notes       String?
+
+  createdAt   DateTime @default(now())
 }
