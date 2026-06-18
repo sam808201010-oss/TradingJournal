@@ -68,6 +68,22 @@ model Trade {
 
   notes String?
 
+  tradeNotes TradeNote[]
+
+  createdAt DateTime @default(now())
+}
+
+model TradeNote {
+  id        String   @id @default(cuid())
+
+  tradeId   String
+  trade     Trade    @relation(fields: [tradeId], references: [id])
+
+  setupType String?
+  emotion   String?
+  lesson    String?
+  note      String?
+
   createdAt DateTime @default(now())
 }
 
