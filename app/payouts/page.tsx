@@ -1,5 +1,6 @@
 import Sidebar from "@/components/layout/sidebar";
 import { prisma } from "@/lib/prisma";
+import AddPayoutModal from "@/components/payouts/add-payout-modal";
 
 export default async function PayoutsPage() {
   const payouts = await prisma.payout.findMany({
@@ -24,10 +25,13 @@ export default async function PayoutsPage() {
       <Sidebar />
 
       <section className="flex-1 p-8">
-        <h1 className="text-4xl font-bold">
-          Payouts
-        </h1>
+	<div className="flex justify-between items-center">
+	  <h1 className="text-4xl font-bold">
+	    Payouts
+	  </h1>
 
+	  <AddPayoutModal />
+	</div>
         <div className="grid md:grid-cols-3 gap-6 mt-8">
           <div className="bg-zinc-900 rounded-xl p-6">
             <h3>Total Payouts</h3>
