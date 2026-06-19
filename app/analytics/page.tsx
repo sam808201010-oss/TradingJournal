@@ -3,7 +3,19 @@ import { prisma } from "@/lib/prisma";
 import EquityCurve from "@/components/analytics/equity-curve";
 
 export default async function AnalyticsPage() {
-  const trades = await prisma.trade.findMany();
+  const trades = await prisma.trade.findMany({
+    include: {
+      account: true,
+    },
+  });
+
+  const accounts =
+    await prisma.tradingAccount.findMany({
+      include: {
+        payouts: true,
+        trades: true,
+      },
+    });
 
   const totalTrades = trades.length;
 
@@ -76,21 +88,16 @@ export default async function AnalyticsPage() {
         ) /
         Math.abs(
           losses.reduce(
-            (sum, trade) =>
-              sum + (trade.pnl || 0),
+            (sum, trade) => sum + (trade.pnl || 0),
             0
           )
         )
       : 0;
 
-  const pairStats: Record<
-    string,
-    number
-  > = {};
+  const pairStats: Record<string, number> =
+    {};
 
   trades.forEach((trade) => {
-    if (!trade.symbol) return;
-
     pairStats[trade.symbol] =
       (pairStats[trade.symbol] || 0) +
       (trade.pnl || 0);
@@ -102,16 +109,12 @@ export default async function AnalyticsPage() {
     );
 
   const bestPair =
-    sortedPairs.length > 0
-      ? sortedPairs[0][0]
-      : "-";
+    sortedPairs[0]?.[0] || "-";
 
   const worstPair =
-    sortedPairs.length > 0
-      ? sortedPairs[
-          sortedPairs.length - 1
-        ][0]
-      : "-";
+    sortedPairs[
+      sortedPairs.length - 1
+    ]?.[0] || "-";
 
   return (
     <main className="bg-black text-white min-h-screen flex">
@@ -155,31 +158,6 @@ export default async function AnalyticsPage() {
 
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4 mt-8">
-
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p>Profit Factor</p>
-            <h2 className="text-3xl font-bold">
-              {profitFactor.toFixed(2)}
-            </h2>
-          </div>
-
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p>Average Win</p>
-            <h2 className="text-3xl font-bold text-green-400">
-              ${averageWin.toFixed(2)}
-            </h2>
-          </div>
-
-          <div className="bg-zinc-900 p-6 rounded-xl">
-            <p>Average Loss</p>
-            <h2 className="text-3xl font-bold text-red-400">
-              ${averageLoss.toFixed(2)}
-            </h2>
-          </div>
-
-        </div>
-
         <div className="grid md:grid-cols-4 gap-4 mt-8">
 
           <div className="bg-zinc-900 p-6 rounded-xl">
@@ -218,6 +196,101 @@ export default async function AnalyticsPage() {
           </h2>
 
           <EquityCurve trades={trades} />
+        </div>
+
+        <div className="bg-zinc-900 rounded-xl p-6 mt-8">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Prop Firm Analytics
+          </h2>
+
+          <div className="space-y-4">
+
+            {accounts.map((account) => {
+              const accountTrades =
+                account.trades;
+
+              const accountWins =
+                accountTrades.filter(
+                  (t) =>
+                    t.result === "Win"
+                );
+
+              const accountPnL =
+                accountTrades.reduce(
+                  (sum, trade) =>
+                    sum +
+                    (trade.pnl || 0),
+                  0
+                );
+
+              const accountWinRate =
+                accountTrades.length > 0
+                  ? (
+                      (accountWins.length /
+                        accountTrades.length) *
+                      100
+                    ).toFixed(1)
+                  : "0";
+
+              const paidPayouts =
+                account.payouts
+                  .filter(
+                    (p) =>
+                      p.status ===
+                      "Paid"
+                  )
+                  .reduce(
+                    (sum, payout) =>
+                      sum +
+                      payout.amount,
+                    0
+                  );
+
+              return (
+                <div
+                  key={account.id}
+                  className="border border-zinc-800 rounded-xl p-4"
+                >
+                  <h3 className="text-xl font-bold">
+                    {account.accountName}
+                  </h3>
+
+                  <p>
+                    Broker:
+                    {" "}
+                    {account.brokerName}
+                  </p>
+
+                  <p>
+                    Trades:
+                    {" "}
+                    {accountTrades.length}
+                  </p>
+
+                  <p>
+                    Win Rate:
+                    {" "}
+                    {accountWinRate}%
+                  </p>
+
+                  <p>
+                    PnL:
+                    {" "}
+                    ${accountPnL.toFixed(2)}
+                  </p>
+
+                  <p>
+                    Paid Payouts:
+                    {" "}
+                    ${paidPayouts.toFixed(2)}
+                  </p>
+                </div>
+              );
+            })}
+
+          </div>
+
         </div>
 
       </section>
