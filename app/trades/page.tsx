@@ -1,14 +1,15 @@
-import Link from "next/link";
 import Sidebar from "@/components/layout/sidebar";
 import AddTradeModal from "@/components/trades/add-trade-modal";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import TradesTable from "@/components/trades/trades-table";
+import { prisma } from "@/lib/prisma";
 
 export default async function TradesPage() {
   const trades = await prisma.trade.findMany({
     orderBy: {
       createdAt: "desc",
+    },
+    include: {
+      account: true,
     },
   });
 
@@ -25,114 +26,7 @@ export default async function TradesPage() {
           <AddTradeModal />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-          {trades.map((trade) => (
-            <Link
-              href={`/trades/${trade.id}`}
-              key={trade.id}
-            >
-              <div className="bg-zinc-900 rounded-xl p-6 hover:bg-zinc-800 transition cursor-pointer">
-
-                <h2 className="text-xl font-bold">
-                  {trade.symbol}
-                </h2>
-
-                <p className="mt-3">
-                  Direction: {trade.direction}
-                </p>
-
-                <p>
-                  Entry: {trade.entryPrice}
-                </p>
-
-                <p>
-                  SL: {trade.stopLoss ?? "-"}
-                </p>
-
-                <p>
-                  TP: {trade.takeProfit ?? "-"}
-                </p>
-
-                <p>
-                  Lot Size: {trade.lotSize ?? "-"}
-                </p>
-
-                <p>
-                  Risk: {trade.riskPercent ?? 0}%
-                </p>
-
-                <p>
-                  P&L:
-                  <span
-                    className={
-                      trade.pnl && trade.pnl > 0
-                        ? "text-green-400 ml-2"
-                        : "text-red-400 ml-2"
-                    }
-                  >
-                    {trade.pnl ?? 0}
-                  </span>
-                </p>
-
-                <p>
-                  RR: {trade.rr ?? "-"}
-                </p>
-
-                <p>
-                  Commission: {trade.commission ?? 0}
-                </p>
-
-                <p>
-                  Trade Date:
-                  {" "}
-                  {trade.tradeDate
-                    ? new Date(
-                        trade.tradeDate
-                      ).toLocaleDateString()
-                    : "-"}
-                </p>
-
-                <p>
-                  Close Date:
-                  {" "}
-                  {trade.closeDate
-                    ? new Date(
-                        trade.closeDate
-                      ).toLocaleDateString()
-                    : "-"}
-                </p>
-
-                <p className="mt-2 font-semibold">
-                  Result:
-                  <span
-                    className={
-                      trade.result?.toLowerCase() === "win"
-                        ? "text-green-400 ml-2"
-                        : trade.result?.toLowerCase() === "loss"
-                        ? "text-red-400 ml-2"
-                        : "text-yellow-400 ml-2"
-                    }
-                  >
-                    {trade.result}
-                  </span>
-                </p>
-
-                {trade.notes && (
-                  <div className="mt-4 border-t border-zinc-800 pt-3">
-                    <p className="text-zinc-400 text-sm">
-                      Notes
-                    </p>
-
-                    <p>
-                      {trade.notes}
-                    </p>
-                  </div>
-                )}
-
-              </div>
-            </Link>
-          ))}
-        </div>
+        <TradesTable trades={trades} />
       </section>
     </main>
   );
