@@ -11,7 +11,7 @@ export default async function AIInsightsPage() {
   const totalTrades = trades.length;
 
   const wins = trades.filter(
-    (trade) => trade.result === "Win"
+    (t) => t.result?.toLowerCase() === "win"
   );
 
   const winRate =
@@ -19,9 +19,24 @@ export default async function AIInsightsPage() {
       ? (wins.length / totalTrades) * 100
       : 0;
 
-  const setupCounts: Record<string, number> = {};
-  const emotionCounts: Record<string, number> = {};
   const pairPnL: Record<string, number> = {};
+
+  const setupStats: Record<
+    string,
+    {
+      trades: number;
+      wins: number;
+      losses: number;
+    }
+  > = {};
+
+  const emotionStats: Record<
+    string,
+    {
+      trades: number;
+      pnl: number;
+    }
+  > = {};
 
   trades.forEach((trade) => {
     pairPnL[trade.symbol] =
@@ -30,20 +45,50 @@ export default async function AIInsightsPage() {
 
     trade.tradeNotes.forEach((note) => {
       if (note.setupType) {
-        setupCounts[note.setupType] =
-          (setupCounts[note.setupType] || 0) + 1;
+        if (!setupStats[note.setupType]) {
+          setupStats[note.setupType] = {
+            trades: 0,
+            wins: 0,
+            losses: 0,
+          };
+        }
+
+        setupStats[note.setupType].trades++;
+
+        if (
+          trade.result?.toLowerCase() === "win"
+        ) {
+          setupStats[note.setupType].wins++;
+        }
+
+        if (
+          trade.result?.toLowerCase() ===
+          "loss"
+        ) {
+          setupStats[note.setupType].losses++;
+        }
       }
 
       if (note.emotion) {
-        emotionCounts[note.emotion] =
-          (emotionCounts[note.emotion] || 0) + 1;
+        if (!emotionStats[note.emotion]) {
+          emotionStats[note.emotion] = {
+            trades: 0,
+            pnl: 0,
+          };
+        }
+
+        emotionStats[note.emotion].trades++;
+
+        emotionStats[note.emotion].pnl +=
+          trade.pnl || 0;
       }
     });
   });
 
-  const sortedPairs = Object.entries(pairPnL).sort(
-    (a, b) => b[1] - a[1]
-  );
+  const sortedPairs =
+    Object.entries(pairPnL).sort(
+      (a, b) => b[1] - a[1]
+    );
 
   const bestPair =
     sortedPairs[0]?.[0] || "-";
@@ -53,15 +98,25 @@ export default async function AIInsightsPage() {
       sortedPairs.length - 1
     ]?.[0] || "-";
 
-  const mostUsedSetup =
-    Object.entries(setupCounts).sort(
-      (a, b) => b[1] - a[1]
-    )[0]?.[0] || "-";
+  const bestSetup =
+    Object.entries(setupStats)
+      .sort((a, b) => {
+        const aRate =
+          a[1].trades > 0
+            ? (a[1].wins /
+                a[1].trades) *
+              100
+            : 0;
 
-  const mostCommonEmotion =
-    Object.entries(emotionCounts).sort(
-      (a, b) => b[1] - a[1]
-    )[0]?.[0] || "-";
+        const bRate =
+          b[1].trades > 0
+            ? (b[1].wins /
+                b[1].trades) *
+              100
+            : 0;
+
+        return bRate - aRate;
+      })[0]?.[0] || "-";
 
   return (
     <main className="bg-black text-white min-h-screen flex">
@@ -97,62 +152,10 @@ export default async function AIInsightsPage() {
           </div>
 
           <div className="bg-zinc-900 rounded-xl p-6">
-            <p>Worst Pair</p>
+            <p>Best Setup</p>
             <h2 className="text-3xl font-bold">
-              {worstPair}
+              {bestSetup}
             </h2>
-          </div>
-
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-6 mt-8">
-
-          <div className="bg-zinc-900 rounded-xl p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Setup Analysis
-            </h2>
-
-            {Object.entries(setupCounts).length === 0 ? (
-              <p>No setup data yet</p>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(setupCounts)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([setup, count]) => (
-                    <div
-                      key={setup}
-                      className="flex justify-between"
-                    >
-                      <span>{setup}</span>
-                      <span>{count}</span>
-                    </div>
-                  ))}
-              </div>
-            )}
-          </div>
-
-          <div className="bg-zinc-900 rounded-xl p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Emotion Analysis
-            </h2>
-
-            {Object.entries(emotionCounts).length === 0 ? (
-              <p>No emotion data yet</p>
-            ) : (
-              <div className="space-y-3">
-                {Object.entries(emotionCounts)
-                  .sort((a, b) => b[1] - a[1])
-                  .map(([emotion, count]) => (
-                    <div
-                      key={emotion}
-                      className="flex justify-between"
-                    >
-                      <span>{emotion}</span>
-                      <span>{count}</span>
-                    </div>
-                  ))}
-              </div>
-            )}
           </div>
 
         </div>
@@ -160,28 +163,96 @@ export default async function AIInsightsPage() {
         <div className="bg-zinc-900 rounded-xl p-6 mt-8">
 
           <h2 className="text-2xl font-bold mb-4">
-            Pair Performance
+            Setup Performance
           </h2>
 
-          <div className="space-y-3">
-            {sortedPairs.map(([pair, pnl]) => (
-              <div
-                key={pair}
-                className="flex justify-between"
-              >
-                <span>{pair}</span>
+          <div className="space-y-4">
 
-                <span
-                  className={
-                    pnl >= 0
-                      ? "text-green-400"
-                      : "text-red-400"
-                  }
+            {Object.entries(setupStats).map(
+              ([setup, stats]) => {
+                const winRate =
+                  stats.trades > 0
+                    ? (
+                        (stats.wins /
+                          stats.trades) *
+                        100
+                      ).toFixed(1)
+                    : "0";
+
+                return (
+                  <div
+                    key={setup}
+                    className="border-b border-zinc-800 pb-3"
+                  >
+                    <div className="font-bold">
+                      {setup}
+                    </div>
+
+                    <div>
+                      Trades:
+                      {" "}
+                      {stats.trades}
+                    </div>
+
+                    <div>
+                      Wins:
+                      {" "}
+                      {stats.wins}
+                    </div>
+
+                    <div>
+                      Losses:
+                      {" "}
+                      {stats.losses}
+                    </div>
+
+                    <div className="text-green-400">
+                      Win Rate:
+                      {" "}
+                      {winRate}%
+                    </div>
+                  </div>
+                );
+              }
+            )}
+
+          </div>
+
+        </div>
+
+        <div className="bg-zinc-900 rounded-xl p-6 mt-8">
+
+          <h2 className="text-2xl font-bold mb-4">
+            Emotion Performance
+          </h2>
+
+          <div className="space-y-4">
+
+            {Object.entries(
+              emotionStats
+            ).map(
+              ([emotion, stats]) => (
+                <div
+                  key={emotion}
+                  className="flex justify-between border-b border-zinc-800 pb-3"
                 >
-                  ${pnl.toFixed(2)}
-                </span>
-              </div>
-            ))}
+                  <span>
+                    {emotion}
+                  </span>
+
+                  <span>
+                    Trades:
+                    {" "}
+                    {stats.trades}
+                    {" | "}
+                    PnL:
+                    {" "}
+                    ${stats.pnl.toFixed(2)}
+                  </span>
+                </div>
+              )
+            )}
+
           </div>
 
         </div>
@@ -195,26 +266,34 @@ export default async function AIInsightsPage() {
           <ul className="space-y-3">
 
             <li>
-              Your best performing pair is{" "}
-              <strong>{bestPair}</strong>
-            </li>
-
-            <li>
-              Your most used setup is{" "}
-              <strong>{mostUsedSetup}</strong>
-            </li>
-
-            <li>
-              Your most common emotion is{" "}
+              Your strongest setup is
+              {" "}
               <strong>
-                {mostCommonEmotion}
+                {bestSetup}
               </strong>
             </li>
 
             <li>
-              Focus on repeating trades
-              that match your strongest
-              setup patterns.
+              Your best pair is
+              {" "}
+              <strong>
+                {bestPair}
+              </strong>
+            </li>
+
+            <li>
+              Your weakest pair is
+              {" "}
+              <strong>
+                {worstPair}
+              </strong>
+            </li>
+
+            <li>
+              Focus on setups with the
+              highest win rate and
+              avoid emotional trades
+              that consistently lose.
             </li>
 
           </ul>
