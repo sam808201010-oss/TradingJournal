@@ -1,4 +1,5 @@
 import Sidebar from "@/components/layout/sidebar";
+import AddNoteModal from "@/components/trades/add-note-modal";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 
@@ -13,6 +14,13 @@ export default async function TradeDetailPage({
     where: {
       id,
     },
+    include: {
+      tradeNotes: {
+        orderBy: {
+          createdAt: "desc",
+        },
+      },
+    },
   });
 
   if (!trade) {
@@ -25,9 +33,13 @@ export default async function TradeDetailPage({
 
       <section className="flex-1 p-8">
 
-        <h1 className="text-4xl font-bold mb-8">
-          {trade.symbol}
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold">
+            {trade.symbol}
+          </h1>
+
+          <AddNoteModal tradeId={trade.id} />
+        </div>
 
         <div className="grid md:grid-cols-4 gap-6">
 
@@ -82,20 +94,14 @@ export default async function TradeDetailPage({
           <div className="space-y-3">
 
             <p>Entry: {trade.entryPrice}</p>
-
             <p>Stop Loss: {trade.stopLoss}</p>
-
             <p>Take Profit: {trade.takeProfit}</p>
-
             <p>Lot Size: {trade.lotSize}</p>
-
             <p>Risk %: {trade.riskPercent}</p>
-
             <p>Commission: {trade.commission}</p>
 
             <p>
-              Trade Date:
-              {" "}
+              Trade Date:{" "}
               {new Date(
                 trade.tradeDate
               ).toLocaleDateString()}
@@ -112,6 +118,56 @@ export default async function TradeDetailPage({
             )}
 
           </div>
+
+        </div>
+
+        <div className="bg-zinc-900 rounded-xl p-6 mt-8">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Trade Journal Notes
+          </h2>
+
+          {trade.tradeNotes.length === 0 ? (
+            <p className="text-zinc-400">
+              No notes added yet
+            </p>
+          ) : (
+            <div className="space-y-6">
+
+              {trade.tradeNotes.map((note) => (
+                <div
+                  key={note.id}
+                  className="border border-zinc-800 rounded-lg p-4"
+                >
+                  <p>
+                    <strong>Setup:</strong>{" "}
+                    {note.setupType || "-"}
+                  </p>
+
+                  <p>
+                    <strong>Emotion:</strong>{" "}
+                    {note.emotion || "-"}
+                  </p>
+
+                  <p>
+                    <strong>Lesson:</strong>{" "}
+                    {note.lesson || "-"}
+                  </p>
+
+                  <p className="mt-3">
+                    {note.note || "-"}
+                  </p>
+
+                  <p className="text-sm text-zinc-500 mt-3">
+                    {new Date(
+                      note.createdAt
+                    ).toLocaleString()}
+                  </p>
+                </div>
+              ))}
+
+            </div>
+          )}
 
         </div>
 
