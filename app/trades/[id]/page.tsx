@@ -2,6 +2,8 @@ import Sidebar from "@/components/layout/sidebar";
 import AddNoteModal from "@/components/trades/add-note-modal";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
+import UploadScreenshotModal from "@/components/trades/upload-screenshot-modal";
+
 
 export default async function TradeDetailPage({
   params,
@@ -15,12 +17,18 @@ export default async function TradeDetailPage({
       id,
     },
     include: {
-      tradeNotes: {
-        orderBy: {
-          createdAt: "desc",
-        },
-      },
+  tradeNotes: {
+    orderBy: {
+      createdAt: "desc",
     },
+  },
+
+   screenshots: {
+    orderBy: {
+      createdAt: "desc",
+     },
+    },
+   },	
   });
 
   if (!trade) {
@@ -38,7 +46,10 @@ export default async function TradeDetailPage({
             {trade.symbol}
           </h1>
 
-          <AddNoteModal tradeId={trade.id} />
+<div className="flex gap-3">
+  <UploadScreenshotModal tradeId={trade.id} />
+  <AddNoteModal tradeId={trade.id} />
+</div>
         </div>
 
         <div className="grid md:grid-cols-4 gap-6">
@@ -126,7 +137,46 @@ export default async function TradeDetailPage({
           <h2 className="text-2xl font-bold mb-6">
             Trade Journal Notes
           </h2>
+	<div className="bg-zinc-900 rounded-xl p-6 mt-8">
 
+  <h2 className="text-2xl font-bold mb-6">
+    Trade Screenshots
+  </h2>
+
+  {trade.screenshots.length === 0 ? (
+    <p className="text-zinc-400">
+      No screenshots uploaded yet
+    </p>
+  ) : (
+    <div className="grid md:grid-cols-2 gap-6">
+
+      {trade.screenshots.map((shot) => (
+        <div
+          key={shot.id}
+          className="border border-zinc-800 rounded-lg p-4"
+        >
+          <p className="font-bold mb-3">
+            {shot.type}
+          </p>
+
+          <img
+            src={shot.imageUrl}
+            alt={shot.type}
+            className="rounded-lg w-full"
+          />
+
+          <p className="text-sm text-zinc-500 mt-3">
+            {new Date(
+              shot.createdAt
+            ).toLocaleString()}
+          </p>
+        </div>
+      ))}
+
+    </div>
+  )}
+
+</div>
           {trade.tradeNotes.length === 0 ? (
             <p className="text-zinc-400">
               No notes added yet
